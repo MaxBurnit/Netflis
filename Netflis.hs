@@ -1,3 +1,4 @@
+import Text.Show.Functions
 data Serie = UnaSerie {
     nombre :: String,
     genero :: String,
@@ -56,32 +57,66 @@ treceRazonesPorque = UnaSerie {
     nombre = "13 reasons why",
     genero = "Drama",
     duracion = 50,
-    cantTemporadas = 1,
-    calificaciones = [3,3,3],
+    cantTemporadas = 2,
+    calificaciones = [4,3,3],
     esOriginalDeNetflis = True
 }
 
 --Parte 1
-maraton = [tioGolpetazo, dbs, rompiendoMalo]
-cantSeries = length maraton 
-cantCalificaciones serie = length (calificaciones serie)
---obtenerBreakingBad maraton = elem 
-esPopular serie | cantCalificaciones serie >= 3 = "Es popular"
-                | otherwise = "No es popular"
-valeLaPena serie | (cantTemporadas serie > 1) && (esPopular serie == "Es popular") = "Vale la pena"
-                 | otherwise = "No vale la pena"
---valeLaPenaMaraton maraton = ((valeLaPena.head maraton == "Vale la pena") && (valeLaPena.last maraton == "Vale la pena"))
+maraton1 = [tioGolpetazo, dbs, rompiendoMalo]
 
---Parte3
-data Critico = UnCritico {
-	criterio :: (Serie -> Bool),
-	comoCalifica :: (Calificaciones -> Calificaciones)
-}
-duracionSerie serie = cantTemporadas serie * duracion serie
---promedioDuracion maraton = div (sum(map duracionSerie maraton))  (length maraton)
---calificacionFinal maraton = div (sum(map calificacion maraton)) (length maraton)
-promedio f maraton = div (sum(map f maraton)) (length maraton)
-dMoleitor maraton = map criticar maraton
-criticar criterio evaluacion serie | criterio serie = evaluacion serie
-                                                | otherwise = serie
+cantSeries maraton = length maraton 
+
+cantCalificaciones serie = length (calificaciones serie)
+
+esPopular serie = cantCalificaciones serie >= 3
+
+valeLaPena serie = (cantTemporadas serie > 1) && (esPopular serie == True)
+
+valeLaPenaMaraton maraton | elem rompiendoMalo maraton = True
+                          | otherwise = valeLaPena (head maraton) && valeLaPena  (last maraton)
+
+mitadDeUnaMaraton maraton = splitAt (div (length maraton)  2) maraton
+
+repuntaAlFinal maraton = valeLaPenaMaraton (fst $ mitadDeUnaMaraton maraton) == False && valeLaPenaMaraton (snd $ mitadDeUnaMaraton maraton) == True
+
+promedioSerie serie = div (sum $ calificaciones serie) (length $ calificaciones serie)
+
+dispersionCalificaciones serie = maximum (calificaciones serie) - minimum (calificaciones serie)
+
+calificarSerie serie calificacion = (calificaciones serie) ++ [calificacion]
+
+primeraCalificacion serie = head (calificaciones serie)
+
+aumentarCalificacion funcion xs = (funcion xs + 2) - (5 - (funcion xs + 2))
+
+medioDeLista lista = (init.tail) lista
+
+hypearSerie serie = serie {calificaciones = [aumentarCalificacion head (calificaciones serie)] ++ (medioDeLista $ calificaciones serie) ++ [aumentarCalificacion last (calificaciones serie)]}
+
+--Parte 2
+obtenerMonosChinos maraton = filter ((== "Monito chino").genero) maraton
+
+obtenerOriginales maraton = filter (esOriginalDeNetflis) maraton
+obtenerOriginalesQueValen maraton = filter (valeLaPena) (obtenerOriginales maraton)
+
+obtenerPorCantDeTempos cantDeTemporadas maraton = filter ((== cantDeTemporadas). cantTemporadas) maraton
+
+esFlojita maraton = obtenerPorCantDeTempos 1 maraton == maraton
+
+cuantoTarda maraton = sum $ map duracion maraton
+
+valeLaPenaMaraton' maraton | elem rompiendoMalo maraton = True
+                           | otherwise = elem (True) (map valeLaPena maraton)
+
+calificacionesMaraton [] = []
+calificacionesMaraton (m : ms) = calificaciones m ++ calificacionesMaraton ms
+calificacionMasAlta maraton = maximum (calificacionesMaraton $ obtenerOriginales maraton)
+
+hypearSiCorresponde [] = []
+hypearSiCorresponde (m : ms) | (genero m == "Drama" || genero m == "Suspenso") = (hypearSerie m) : (hypearSiCorresponde ms)
+                             | otherwise = m : (hypearSiCorresponde ms) 
+
+
+
 
