@@ -63,7 +63,10 @@ treceRazonesPorque = UnaSerie {
 }
 
 --Parte 1
-maraton1 = [tioGolpetazo, dbs, rompiendoMalo]
+maraton1 = [tioGolpetazo,cosasExtranias,dbs,espejoNegro,rompiendoMalo,treceRazonesPorque]
+maraton2 = [tioGolpetazo]
+listaMaraton = [maraton1,maraton1]
+listaMaraton2 = [maraton1,maraton2]
 
 cantSeries maraton = length maraton 
 
@@ -117,6 +120,40 @@ hypearSiCorresponde [] = []
 hypearSiCorresponde (m : ms) | (genero m == "Drama" || genero m == "Suspenso") = (hypearSerie m) : (hypearSiCorresponde ms)
                              | otherwise = m : (hypearSiCorresponde ms) 
 
+--Parte 3
+
+cantDeTemporadasMaraton maraton = length $ map cantTemporadas maraton
+promedioDuracionMaraton maraton = div (cuantoTarda maraton) (cantDeTemporadasMaraton maraton)
+
+--calificacionMaraton maraton = div (sum $ calificacionesMaraton maraton) (length $ calificacionesMaraton maraton)
+
+calificacionesListaMaraton [] = []
+calificacionesListaMaraton (lista : listas) = calificacionesMaraton lista ++ calificacionesListaMaraton listas
+--calificacionListaMaraton lista = div (sum $ calificacionListaMaraton lista) (length $ calificacionListaMaraton lista)
+
+promedioLista funcion lista = div (sum $ funcion lista) (length $ funcion lista)
+
+maximoSegun funcion lista = (head.filter (\elemento -> ((maximum.map funcion) lista) == funcion elemento)) lista
+
+type Calificaciones = [Int]
+data Critico = UnCritico {criterio :: (Serie -> Bool), comoCalifica :: (Calificaciones -> Calificaciones)}
+
+serieFloja serie = cantTemporadas serie == 1
+
+dmoleitor = UnCritico {criterio = serieFloja, comoCalifica = reducirCalificaciones2}
+
+reducirCalificaciones2 lista = (filter (>=3) lista) ++ [1]
+
+hypeador = UnCritico {criterio = hypeable, comoCalifica = hypear}
+
+hypeable serie = genero serie == "Drama" || genero serie == "Suspenso"
 
 
+premiar numero = min 5 (numero + 2)
+sinHeadNiTail = tail.init
+hypear calificaciones = [(premiar.head) calificaciones] ++ sinHeadNiTail calificaciones ++ [(premiar.last) calificaciones] 
 
+exquisito = UnCritico {criterio = valeLaPena, comoCalifica = calificacionExquisita}
+
+avg lista = div (sum lista) (length lista)
+calificacionExquisita calificaciones = [(+1).avg calificaciones ]
